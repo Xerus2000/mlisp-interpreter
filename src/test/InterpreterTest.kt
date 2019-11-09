@@ -29,9 +29,9 @@ class InterpreterTest : StringSpec({
         ListValue(ListValue(1, 5), ListValue(2, 3), IntValue(8)) shouldBe interpret("(list (1 5) (2 3) 8)")
     }
     "Catches Syntax errors" {
-        shouldThrow<SyntaxError> { interpret("= 1 2") }
-        shouldThrow<SyntaxError> { interpret("(= 1 2") }
+        shouldThrow<ValidationException> { interpret("= 1 2") }
+        shouldThrow<ValidationException> { interpret("(= 1 2") }
         shouldThrow<InvalidArgumentNumberError> { interpret("(= 1 2 3)") }
-        shouldThrow<InvalidArgumentNumberError> { interpret("first (1 2) 3") }
+        shouldThrow<InvalidArgumentNumberError> { interpret("(first (1 2) 3)") }
     }
 })

@@ -1,17 +1,28 @@
-import kotlin.math.exp
+const val STRICT_MODE = true
 
 val availableFunctions = HashMap(defaultFunctions)
 
 fun interpret(code: String): Value {
     @Suppress("NAME_SHADOWING")
-    val code = code.trim()
-    return interpretRecursively(code).value
+    validate(code)
+    return interpretRecursively(code.trim()).value
+}
+
+fun validate(code: String) {
+    if(STRICT_MODE) {
+        if(!code.startsWith('(') && !code.endsWith(')'))
+            throw ValidationException("Code is not surrounded by parenthesis")
+        val opening = code.count { it == '(' }
+        val closing = code.count { it == ')' }
+        if(opening != closing)
+            throw ValidationException("Amount of opening ($opening) and closing ($closing) parenthesis does not match")
+    }
 }
 
 fun isLiteral(first: Char) = first.isDigit() || first == '-'
 
 fun parseLiteral(expression: String): IntValue =
-    IntValue(expression.toIntOrNull() ?: throw SyntaxError(expression, "Expression is not an Integer!"))
+    IntValue(expression.toIntOrNull() ?: throw ParseError(expression, "Expression is not an Integer!"))
 
 data class InterpretResult(val value: Value, val remainder: String)
 
