@@ -1,3 +1,5 @@
+import kotlin.math.exp
+
 val availableFunctions = HashMap(defaultFunctions)
 
 fun interpret(code: String): Value {
@@ -35,13 +37,14 @@ fun interpretRecursively(code: String): InterpretResult {
             val split = remainder.split(' ', limit = 2)
             val currentValue = split[0]
             remainder = split.getOrNull(1) ?: ""
-            if (currentValue.last() == ')') {
-                values.add(parseLiteral(currentValue.substring(0, currentValue.lastIndex)))
+            if (currentValue.contains(')')) {
+                values.add(parseLiteral(currentValue.substringBefore(')')))
                 break
             } else {
                 values.add(parseLiteral(currentValue))
             }
         }
     }
-    return InterpretResult(if(code[0] == '(') values[0] else ListValue(values), remainder)
+    val isFunction = code[0] == '(' && !isLiteral(code[1]) && code[1] != '('
+    return InterpretResult(if(isFunction) values[0] else ListValue(values), remainder)
 }

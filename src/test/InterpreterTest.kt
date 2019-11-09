@@ -4,11 +4,9 @@ import io.kotlintest.specs.StringSpec
 
 class InterpreterTest : StringSpec({
     "List" {
-        val list = listOf(-1, 2, 3)
-        val listLiteral = interpret("(-1 2 3)")
+        val list = ListValue(-1, 2, 3)
         val listFunction = interpret("(list -1 2 3)")
-        list shouldBe listLiteral.asList().map { it.asInt() }
-        listLiteral shouldBe listFunction
+        list shouldBe listFunction
     }
     "Summation" {
         3 shouldBe interpret("(+ 1 2)").asInt()
@@ -27,8 +25,8 @@ class InterpreterTest : StringSpec({
         ListValue(1, 4, 6, 5, 19) shouldBe interpret("(append (1 4 6) 5 19)")
     }
     "Multi-Dimensional Lists" {
-        ListValue(ListValue(1)) shouldBe interpret("((1))")
-        ListValue(ListValue(1, 5), ListValue(2, 3)) shouldBe interpret("((1 5) (2 3))")
+        ListValue(ListValue(1)) shouldBe interpret("(list (1))")
+        ListValue(ListValue(1, 5), ListValue(2, 3), IntValue(8)) shouldBe interpret("(list (1 5) (2 3) 8)")
     }
     "Catches Syntax errors" {
         shouldThrow<SyntaxError> { interpret("= 1 2") }
