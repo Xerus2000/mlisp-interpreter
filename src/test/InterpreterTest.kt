@@ -7,8 +7,8 @@ class InterpreterTest : StringSpec({
         val list = listOf(-1, 2, 3)
         val listLiteral = interpret("(-1 2 3)")
         val listFunction = interpret("(list -1 2 3)")
-        list shouldBe listLiteral.asList().map { it.asInt() }
         listLiteral shouldBe listFunction
+        list shouldBe listLiteral.asList().map { it.asInt() }
     }
     "Summation" {
         3 shouldBe interpret("(+ 1 2)").asInt()
