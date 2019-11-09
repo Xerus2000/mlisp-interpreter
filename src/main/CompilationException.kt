@@ -4,7 +4,10 @@ import kotlin.reflect.KClass
 
 sealed class CompilationException(message: String) : Exception(message)
 
-data class SyntaxError(val code: String, val msg: String) :
+data class ValidationException(val msg: String) :
+    CompilationException(msg)
+
+data class ParseError(val code: String, val msg: String) :
     CompilationException("'$code' is not valid: $msg")
 
 data class FunctionNotDefinedError(val name: String) :
