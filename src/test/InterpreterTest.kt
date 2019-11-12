@@ -26,6 +26,10 @@ class InterpreterTest : StringSpec({
         interpret("(list (1))") shouldBe ListValue(ListValue(1))
         interpret("(list (1 5) (2 3) 8)") shouldBe ListValue(ListValue(1, 5), ListValue(2, 3), IntValue(8))
     }
+    "Nested Function Calls" {
+        interpret("(+ 1 (+ 3 -2))") shouldBe IntValue(2)
+        interpret("(first (append ((1)) 2))") shouldBe ListValue(1)
+    }
     "Catches Syntax errors" {
         shouldThrow<ValidationException> { interpret("= 1 2") }
         shouldThrow<ValidationException> { interpret("(= 1 2") }

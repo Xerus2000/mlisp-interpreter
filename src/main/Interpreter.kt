@@ -5,7 +5,7 @@ val availableFunctions = HashMap(defaultFunctions)
 fun interpret(code: String): Value {
     @Suppress("NAME_SHADOWING")
     validate(code)
-    return interpretRecursively(code.trim()).value
+    return interpretRecursively(code.trim()).value.asList().first()
 }
 
 fun validate(code: String) {
@@ -56,6 +56,5 @@ fun interpretRecursively(code: String): InterpretResult {
             }
         }
     }
-    val isFunction = code[0] == '(' && !isLiteral(code[1]) && code[1] != '('
-    return InterpretResult(if(isFunction) values[0] else ListValue(values), remainder)
+    return InterpretResult(ListValue(values), remainder)
 }
