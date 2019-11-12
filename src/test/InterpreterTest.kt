@@ -4,29 +4,27 @@ import io.kotlintest.specs.StringSpec
 
 class InterpreterTest : StringSpec({
     "List" {
-        val list = ListValue(-1, 2, 3)
-        val listFunction = interpret("(list -1 2 3)")
-        list shouldBe listFunction
+        interpret("(list -1 2 3)") shouldBe ListValue(-1, 2, 3)
     }
     "Summation" {
-        3 shouldBe interpret("(+ 1 2)").asInt()
-        IntValue(-19) shouldBe interpret("(+ -22 3)")
+        interpret("(+ 1 2)").asInt() shouldBe 3
+        interpret("(+ -22 3)") shouldBe IntValue(-19)
     }
     "Equals" {
-        true shouldBe interpret("(= 1 1)").asBoolean()
-        false shouldBe interpret("(= 1 2)").asBoolean()
+        interpret("(= 1 1)").asBoolean() shouldBe true
+        interpret("(= 1 2)").asBoolean() shouldBe false
     }
     "Standard methods" {
-        IntValue(1) shouldBe interpret("(first (1 2 3))")
-        ListValue(2, 5) shouldBe interpret("(rest (6 2 5))")
-        ListValue(1, 5, 2) shouldBe interpret("(append (1 5) 2)")
+        interpret("(first (1 2 3))") shouldBe IntValue(1)
+        interpret("(rest (6 2 5))") shouldBe ListValue(2, 5)
+        interpret("(append (1 5) 2)") shouldBe ListValue(1, 5, 2)
     }
     "Method extension" {
-        ListValue(1, 4, 6, 5, 19) shouldBe interpret("(append (1 4 6) 5 19)")
+        interpret("(append (1 4 6) 5 19)") shouldBe ListValue(1, 4, 6, 5, 19)
     }
     "Multi-Dimensional Lists" {
-        ListValue(ListValue(1)) shouldBe interpret("(list (1))")
-        ListValue(ListValue(1, 5), ListValue(2, 3), IntValue(8)) shouldBe interpret("(list (1 5) (2 3) 8)")
+        interpret("(list (1))") shouldBe ListValue(ListValue(1))
+        interpret("(list (1 5) (2 3) 8)") shouldBe ListValue(ListValue(1, 5), ListValue(2, 3), IntValue(8))
     }
     "Catches Syntax errors" {
         shouldThrow<ValidationException> { interpret("= 1 2") }
