@@ -1,12 +1,13 @@
 const val STRICT_MODE = true
 
+val variables = HashMap<String, Value>()
 val availableFunctions = HashMap(defaultFunctions)
 
 fun interpret(code: String): Value {
     @Suppress("NAME_SHADOWING")
     validate(code)
     val result = interpretRecursively(code.trim())
-        return result.value.asList().last()
+    return result.value.asList().last()
 }
 
 fun validate(code: String) {
@@ -20,21 +21,30 @@ fun validate(code: String) {
     }
 }
 
-fun isLiteral(first: Char) = first.isDigit() || first == '-'
-
-fun parseLiteral(expression: String): IntValue =
-    IntValue(expression.toIntOrNull() ?: throw ParseError(expression, "Expression is not an Integer!"))
+fun parseLiteral(expression: String): Value =
+    variables[expression] ?: IntValue(expression.toIntOrNull() ?: throw ParseError(expression))
 
 data class InterpretResult(val value: Value, val remainder: String)
+fun InterpretResult.unwrap() = value.asList().single()
 
 fun interpretRecursively(code: String): InterpretResult {
-    if(!isLiteral(code[0]) && code[0] != '(') {
-        val split = code.split(' ', limit = 2)
-        val function = availableFunctions[split[0]] ?: throw FunctionNotDefinedError(split[0])
-        val result = interpretRecursively(split[1])
+    // Check whether this can be interpreted as Function
+    val funSplit = code.split(' ', limit = 2)
+    if(funSplit[0] == "define") {
+        val defSplit = funSplit[1].split(' ', limit = 2)
+		val result = interpretRecursively(defSplit[1])
+        val variableValue = result.unwrap()
+        variables[defSplit[0]] = variableValue
+		return InterpretResult(variableValue, result.remainder)
+    }
+    val function = availableFunctions[funSplit[0]]
+	if(function != null) {
+        val result = interpretRecursively(funSplit[1])
         val arguments = result.value.asList().toTypedArray()
         return InterpretResult(function.invoke(arguments), result.remainder)
     }
+    
+    // Interpret as List
     val values = arrayListOf<Value>()
     var remainder = code
     loop@ while(remainder.isNotEmpty()) {

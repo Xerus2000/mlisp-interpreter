@@ -7,8 +7,8 @@ sealed class CompilationException(message: String) : Exception(message)
 data class ValidationException(val msg: String) :
     CompilationException(msg)
 
-data class ParseError(val code: String, val msg: String) :
-    CompilationException("'$code' is not valid: $msg")
+data class ParseError(val code: String) :
+    CompilationException("Unable to parse '$code'")
 
 data class FunctionNotDefinedError(val name: String) :
     CompilationException("Function not defined: $name")

@@ -35,8 +35,11 @@ class InterpreterTest : StringSpec({
     "Chained calls" {
         interpret("(first (1 2))(first (4))") shouldBe IntValue(4)
     }
-    "Variables" {
-        interpret("(define a 1)(print a)(append (4) a)") shouldBe ListValue(4, 1)
+    "Variable definition" {
+        interpret("(define a 1)") shouldBe IntValue(1)
+        interpret("(define a 1) (append (4) a)") shouldBe ListValue(4, 1)
+        interpret("(define 1 3) (= 1 3)") shouldBe TrueValue
+        interpret("(define 1 3) (define 3 1) (= 3 1)") shouldBe TrueValue
     }
     "Catches Syntax errors" {
         shouldThrow<ValidationException> { interpret("= 1 2") }
