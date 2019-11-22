@@ -22,9 +22,10 @@ class InterpreterTest : StringSpec({
     "Method extension" {
         interpret("(append (1 4 6) 5 19)") shouldBe ListValue(1, 4, 6, 5, 19)
     }
-    "Multi-Dimensional Lists" {
+    "Nested Lists" {
         interpret("(list (1))") shouldBe ListValue(ListValue(1))
         interpret("(list (1 5) (2 3) 8)") shouldBe ListValue(ListValue(1, 5), ListValue(2, 3), IntValue(8))
+        interpret("(list (2 (3)) 8)") shouldBe ListValue(ListValue(IntValue(2), ListValue(3)), IntValue(8))
     }
     "Nested Function Calls" {
         interpret("(+ 1 (+ 3 -2))") shouldBe IntValue(2)
