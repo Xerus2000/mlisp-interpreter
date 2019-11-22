@@ -4,31 +4,39 @@ import io.kotlintest.specs.StringSpec
 
 class InterpreterTest : StringSpec({
     "List" {
-        val list = listOf(-1, 2, 3)
-        val listLiteral = interpret("(-1 2 3)")
-        val listFunction = interpret("(list -1 2 3)")
-        listLiteral shouldBe listFunction
-        list shouldBe listLiteral.asList().map { it.asInt() }
+        interpret("(list -1 2 3)") shouldBe ListValue(-1, 2, 3)
     }
     "Summation" {
-        3 shouldBe interpret("(+ 1 2)").asInt()
-        IntValue(-19) shouldBe interpret("(+ -22 3)")
+        interpret("(+ 1 2)").asInt() shouldBe 3
+        interpret("(+ -22 3)") shouldBe IntValue(-19)
     }
     "Equals" {
-        true shouldBe interpret("(= 1 1)").asBoolean()
-        false shouldBe interpret("(= 1 2)").asBoolean()
+        interpret("(= 1 1)").asBoolean() shouldBe true
+        interpret("(= 1 2)").asBoolean() shouldBe false
     }
     "Standard methods" {
-        IntValue(1) shouldBe interpret("(first (1 2 3))")
-        ListValue(2, 5) shouldBe interpret("(rest (6 2 5))")
-        ListValue(1, 5, 2) shouldBe interpret("(append (1 5) 2)")
+        interpret("(first (1 2 3))") shouldBe IntValue(1)
+        interpret("(rest (6 2 5))") shouldBe ListValue(2, 5)
+        interpret("(append (1 5) 2)") shouldBe ListValue(1, 5, 2)
     }
     "Method extension" {
-        ListValue(1, 4, 6, 5, 19) shouldBe interpret("(append (1 4 6) 5 19)")
+        interpret("(append (1 4 6) 5 19)") shouldBe ListValue(1, 4, 6, 5, 19)
     }
-    "Multi-Dimensional Lists" {
-        ListValue(ListValue(1)) shouldBe interpret("((1))")
-        ListValue(ListValue(1, 5), ListValue(2, 3)) shouldBe interpret("((1 5) (2 3))")
+    "Nested Lists" {
+        interpret("(list (1))") shouldBe ListValue(ListValue(1))
+        interpret("(list (1 5) (2 3) 8)") shouldBe ListValue(ListValue(1, 5), ListValue(2, 3), IntValue(8))
+        interpret("(list (2 (3)) 8)") shouldBe ListValue(ListValue(IntValue(2), ListValue(3)), IntValue(8))
+    }
+    "Nested Function Calls" {
+        interpret("(+ 1 (+ 3 -2))") shouldBe IntValue(2)
+        interpret("(first (append ((1)) 2))") shouldBe ListValue(1)
+        interpret("(append (first ((1) 2)) (list 3 4) 7)") shouldBe ListValue(IntValue(1), ListValue(3, 4), IntValue(7))
+    }
+    "Chained calls" {
+        interpret("(first (1 2))(first (4))") shouldBe 3
+    }
+    "Variables" {
+        interpret("(define a 1)(print a)(append (4) a)") shouldBe ListValue(4, 1)
     }
     "Catches Syntax errors" {
         shouldThrow<ValidationException> { interpret("= 1 2") }
