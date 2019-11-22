@@ -32,6 +32,12 @@ class InterpreterTest : StringSpec({
         interpret("(first (append ((1)) 2))") shouldBe ListValue(1)
         interpret("(append (first ((1) 2)) (list 3 4) 7)") shouldBe ListValue(IntValue(1), ListValue(3, 4), IntValue(7))
     }
+    "Chained calls" {
+        interpret("(first (1 2))(first (4))") shouldBe 3
+    }
+    "Variables" {
+        interpret("(define a 1)(print a)(append (4) a)") shouldBe ListValue(4, 1)
+    }
     "Catches Syntax errors" {
         shouldThrow<ValidationException> { interpret("= 1 2") }
         shouldThrow<ValidationException> { interpret("(= 1 2") }
