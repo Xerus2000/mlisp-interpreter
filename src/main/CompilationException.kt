@@ -19,3 +19,5 @@ data class WrongParameterTypeError(val expectedType: KClass<out Value>, val actu
 data class InvalidArgumentNumberError(val arguments: Array<*>, val expected: Int) :
     CompilationException("Expected $expected arguments but got ${arguments.joinToString(" ", "(", ")")}")
 
+data class UnexpectedEndOfCodeException(val code: String) :
+    CompilationException("Code incomplete: '$code'")
