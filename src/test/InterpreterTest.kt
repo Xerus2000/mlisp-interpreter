@@ -33,7 +33,7 @@ class InterpreterTest : StringSpec({
         interpret("(append (first ((1) 2)) (list 3 4) 7)") shouldBe ListValue(IntValue(1), ListValue(3, 4), IntValue(7))
     }
     "Chained calls" {
-        interpret("(first (1 2))(first (4))") shouldBe 3
+        interpret("(first (1 2))(first (4))") shouldBe IntValue(4)
     }
     "Variables" {
         interpret("(define a 1)(print a)(append (4) a)") shouldBe ListValue(4, 1)

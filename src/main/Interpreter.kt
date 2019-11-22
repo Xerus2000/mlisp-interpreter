@@ -5,7 +5,8 @@ val availableFunctions = HashMap(defaultFunctions)
 fun interpret(code: String): Value {
     @Suppress("NAME_SHADOWING")
     validate(code)
-    return interpretRecursively(code.trim()).value.asList().first()
+    val result = interpretRecursively(code.trim())
+        return result.value.asList().last()
 }
 
 fun validate(code: String) {
@@ -27,7 +28,7 @@ fun parseLiteral(expression: String): IntValue =
 data class InterpretResult(val value: Value, val remainder: String)
 
 fun interpretRecursively(code: String): InterpretResult {
-    if (!isLiteral(code[0]) && code[0] != '(') {
+    if(!isLiteral(code[0]) && code[0] != '(') {
         val split = code.split(' ', limit = 2)
         val function = availableFunctions[split[0]] ?: throw FunctionNotDefinedError(split[0])
         val result = interpretRecursively(split[1])
@@ -36,24 +37,25 @@ fun interpretRecursively(code: String): InterpretResult {
     }
     val values = arrayListOf<Value>()
     var remainder = code
-    loop@ while (remainder.isNotEmpty()) {
+    loop@ while(remainder.isNotEmpty()) {
+        if(remainder[0] == ')') {
+            remainder = remainder.substring(1)
+            break
+        }
         when {
             remainder[0] == '(' -> {
                 val expression = remainder.substring(1)
                 val result = interpretRecursively(expression)
-                remainder = result.remainder
+                remainder = result.remainder.trim()
                 values.add(result.value)
             }
             else -> {
-                val split = remainder.split(' ', limit = 2)
+                val split = remainder.split(' ', ')', limit = 2)
                 val currentValue = split[0]
-                remainder = split.getOrNull(1) ?: ""
-                if (currentValue.contains(')')) {
-                    values.add(parseLiteral(currentValue.substringBefore(')')))
+                remainder = split[1]
+                values.add(parseLiteral(currentValue))
+                if(remainder.isEmpty() || remainder[0] in arrayOf(')', ' '))
                     break@loop
-                } else {
-                    values.add(parseLiteral(currentValue))
-                }
             }
         }
     }
