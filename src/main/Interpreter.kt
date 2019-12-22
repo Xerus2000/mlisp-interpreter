@@ -9,12 +9,12 @@ fun interpret(code: String): Value {
 }
 
 fun validate(code: String) {
-    if(STRICT_MODE) {
-        if(!code.startsWith('(') && !code.endsWith(')'))
+    if (STRICT_MODE) {
+        if (!code.startsWith('(') && !code.endsWith(')'))
             throw ValidationException("Code is not surrounded by parenthesis")
         val opening = code.count { it == '(' }
         val closing = code.count { it == ')' }
-        if(opening != closing)
+        if (opening != closing)
             throw ValidationException("Amount of opening ($opening) and closing ($closing) parenthesis does not match")
     }
 }
@@ -29,7 +29,13 @@ data class InterpretResult(val value: Value, val remainder: String)
 fun interpretRecursively(code: String): InterpretResult {
     val values = arrayListOf<Value>()
     var remainder = code
-    while (remainder.isNotEmpty()) {
+    while (true) {
+        if(remainder.isEmpty())
+            throw UnexpectedEndOfCodeException(code)
+        if(remainder[0] == ')') {
+            remainder = remainder.substring(1)
+            break
+        }
         if (remainder[0] == '(') {
             val expression = remainder.substring(1)
             if (isLiteral(expression[0]) || expression[0] == '(') {
@@ -40,20 +46,17 @@ fun interpretRecursively(code: String): InterpretResult {
                 val split = expression.split(' ', limit = 2)
                 val function = availableFunctions[split[0]] ?: throw FunctionNotDefinedError(split[0])
                 val result = interpretRecursively(split[1])
-                remainder = result.remainder
+                remainder = ')' + result.remainder
                 val arguments = result.value.asList().toTypedArray()
                 values.add(function.invoke(arguments))
             }
         } else {
-            val split = remainder.split(' ', limit = 2)
+            val split = remainder.split(' ', ')', limit = 2)
             val currentValue = split[0]
-            remainder = split.getOrNull(1) ?: ""
-            if (currentValue.contains(')')) {
-                values.add(parseLiteral(currentValue.substringBefore(')')))
+            remainder = split[1]
+            values.add(parseLiteral(currentValue))
+            if (remainder.isEmpty() || remainder[0] in arrayOf(')', ' '))
                 break
-            } else {
-                values.add(parseLiteral(currentValue))
-            }
         }
     }
     return InterpretResult(ListValue(values), remainder)

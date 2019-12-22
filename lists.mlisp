@@ -1,0 +1,12 @@
+(define reverse lambda (l) (
+	if (l) (append (reverse (rest l)) (first l)) ()
+))
+(define length lambda (l) (
+	if (l) (+ 1 (length (rest l))) 0
+))
+(define sum lambda (v l) (
+	if (l) (sum (+ v (first l)) (rest l)) 0
+))
+(define sumUp lambda (l) (
+	sum (0 l)
+))

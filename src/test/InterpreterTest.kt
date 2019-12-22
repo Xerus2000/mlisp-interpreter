@@ -33,10 +33,19 @@ class InterpreterTest : StringSpec({
         interpret("(append (first ((1) 2)) (list 3 4) 7)") shouldBe ListValue(IntValue(1), ListValue(3, 4), IntValue(7))
     }
     "Chained calls" {
-        interpret("(first (1 2))(first (4))") shouldBe 3
+        interpret("(first (1 2))(first (4))") shouldBe IntValue(3)
     }
     "Variables" {
         interpret("(define a 1)(print a)(append (4) a)") shouldBe ListValue(4, 1)
+    }
+    "Conditionals" {
+        interpret("(if (1) (6) (-4))") shouldBe IntValue(6)
+        interpret("(if () (1) (2))") shouldBe IntValue(2)
+    }
+    "Functions" {
+        interpret("(define twice lambda (a) (+ a a)) (twice 2)") shouldBe IntValue(4)
+        interpret("(define negate lambda (t) (- 0 t)) (negate 55)") shouldBe IntValue(-55)
+        interpret("(define sum lambda (v l) (if (l) (sum (+ v (first l)) (rest l)) 0)) (sum 1 (2 3 4))") shouldBe IntValue(10)
     }
     "Catches Syntax errors" {
         shouldThrow<ValidationException> { interpret("= 1 2") }
